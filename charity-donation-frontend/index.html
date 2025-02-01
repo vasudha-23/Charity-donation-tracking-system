@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CharityChain - Transparent Donations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+
+<body class="h-full">
+    <div id="loader" class="hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg">Processing...</div>
+        </div>
+    </div>
+
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-blue-600">CharityChain</a>
+                <div class="flex items-center space-x-4">
+                    <span class="wallet-address"></span>
+                    <button id="connectWallet" class="btn-primary">
+                        Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">Support Verified Charities</h1>
+            <p class="text-gray-600">100% transparent blockchain-based donations</p>
+        </div>
+
+        <div id="institutionsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    </main>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/donations.js"></script>
+</body>
+
+</html>

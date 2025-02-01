@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CharityChain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+
+<body class="h-full">
+    <div id="loader" class="hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg">Processing...</div>
+        </div>
+    </div>
+
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-blue-600">CharityChain</a>
+                <div class="flex items-center space-x-4">
+                    <span class="wallet-address"></span>
+                    <button id="connectWallet" class="btn-primary">
+                        Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <h2 class="text-3xl font-bold mb-8">Admin Dashboard</h2>
+
+        <!-- Pending Approvals Section -->
+        <div class="mb-12">
+            <h3 class="text-xl font-semibold mb-6">Pending Institution Approvals</h3>
+            <div id="pendingInstitutions" class="space-y-4"></div>
+        </div>
+
+        <!-- Donation Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="card">
+                <h4 class="text-gray-500 text-sm mb-2">Total Donations</h4>
+                <p id="totalDonations" class="text-2xl font-bold">0 ETH</p>
+            </div>
+            <div class="card">
+                <h4 class="text-gray-500 text-sm mb-2">Total Institutions</h4>
+                <p id="totalInstitutions" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="card">
+                <h4 class="text-gray-500 text-sm mb-2">Active Donors</h4>
+                <p id="totalDonors" class="text-2xl font-bold">0</p>
+            </div>
+        </div>
+
+        <!-- All Donations Table -->
+        <div class="card">
+            <h3 class="text-xl font-semibold mb-6">All Donations</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left border-b">
+                            <th class="pb-3">Donor</th>
+                            <th class="pb-3">Amount</th>
+                            <th class="pb-3">Institution</th>
+                            <th class="pb-3">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="donationsTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+
+</html>
