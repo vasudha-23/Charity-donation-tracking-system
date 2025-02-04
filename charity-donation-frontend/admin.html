@@ -1,65 +1,235 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - CharityChain</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-    <link href="/css/styles.css" rel="stylesheet">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
 </head>
 
-<body class="h-full">
-    <div id="loader" class="hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-6 rounded-lg">Processing...</div>
-        </div>
-    </div>
+<body>
 
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 py-3">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="text-xl font-bold text-blue-600">CharityChain</a>
-                <div class="flex items-center space-x-4">
-                    <a href="profile.html" class="text-gray-600 hover:text-blue-600">Profile</a>
-                    <span class="wallet-address"></span>
-                    <button id="connectWallet" class="btn-primary">Connect Wallet</button>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <h1>Admin Dashboard</h1>
+    <button onclick="fetchTransactions()">Load Transactions</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Donor</th>
+                <th>Amount (ETH)</th>
+                <th>Purpose</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="transactions"></tbody>
+    </table>
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <h2 class="text-3xl font-bold mb-8">Admin Dashboard</h2>
+    <script>
 
-        <div class="mb-12">
-            <h3 class="text-xl font-semibold mb-6">Pending Institution Approvals</h3>
-            <div id="pendingInstitutions" class="space-y-4"></div>
-        </div>
+        let web3;
+        let contract;
+        const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Ensure correct deployed address
+        const abi = [
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "donor",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "purpose",
+                        "type": "string"
+                    }
+                ],
+                "name": "DonationReceived",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_purpose",
+                        "type": "string"
+                    }
+                ],
+                "name": "donate",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "donations",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "donor",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "purpose",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getAllDonations",
+                "outputs": [
+                    {
+                        "components": [
+                            {
+                                "internalType": "address",
+                                "name": "donor",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "amount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "timestamp",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "purpose",
+                                "type": "string"
+                            }
+                        ],
+                        "internalType": "struct CharityDonation.Donation[]",
+                        "name": "",
+                        "type": "tuple[]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getContractBalance",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
 
-        <div class="card">
-            <h3 class="text-xl font-semibold mb-6">All Donations</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="text-left border-b">
-                            <th class="pb-3">Donor</th>
-                            <th class="pb-3">Amount</th>
-                            <th class="pb-3">Institution</th>
-                            <th class="pb-3">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="donationsTable"></tbody>
-                </table>
-            </div>
-        </div>
+        async function fetchTransactions() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                contract = new web3.eth.Contract(abi, contractAddress);
 
-        <a href="profile.html" class="btn-primary mt-4">View My Profile</a>
-    </main>
+                try {
+                    const transactions = await contract.methods.getAllDonations().call();
+                    const tableBody = document.getElementById("transactions");
+                    tableBody.innerHTML = "";
 
-    <script src="js/app.js"></script>
-    <script src="js/admin.js"></script>
+                    transactions.forEach(tx => {
+                        const date = new Date(tx.timestamp * 1000).toLocaleString();
+                        const row = `<tr>
+                    <td>${tx.donor}</td>
+                    <td>${web3.utils.fromWei(tx.amount, "ether")} ETH</td>
+                    <td>${tx.purpose}</td>
+                    <td>${date}</td>
+                </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                } catch (error) {
+                    console.error("Error fetching transactions:", error);
+                    alert("Failed to load transactions.");
+                }
+            } else {
+                alert("Please connect to MetaMask.");
+            }
+        }
+
+    </script>
+
 </body>
 
 </html>
